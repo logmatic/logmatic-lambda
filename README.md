@@ -15,13 +15,11 @@ The provided Python script must be deployed into your AWS Lambda service. We wil
 
 ## 1. Create a new Lambda function
 
-## 2. Select the blue print
-
 Select the `s3-get-object-python` blue print. It has been designed to listen S3 created document and trigger actions.
 
 Let's configure it now.
 
-## 3. Configure the Lambda function
+## 2. Configure the Lambda function
 
 - Give the function name you want
 - Set the Python 2.7 runtime
@@ -29,7 +27,7 @@ Let's configure it now.
   - The bucket where your logs are located and prefix if it applies
   - The event type: `Object Created (All)`
 
-## 4. Provide the code
+## 3. Provide the code
 
 Copy-paste the content of the `lambda_handler.py` file in the Python editor of the AWS Lambda interface.
 
@@ -51,7 +49,7 @@ Replace `<your_api_key>`: The Logmatic.io's API key is available your platform.
 
 You can optionally change the structured metadata. The metadata is merged to all the log events sent by the Lambda script.
 
-## 5. Handler role
+## 4. Handler role
 
 To allow access to the S3 objects you must define a S3 execution role and assign it to the Lambda function.
 
@@ -62,11 +60,11 @@ The role must be created into the IAM Management Console as follow:
 
 Then attach it to your Lambda function.
 
-## 6. Set memory
+## 5. Set memory
 
 Set the memory to the highest possible value.
 
-## 7. Testing it
+## 6. Testing it
 
 You are all set!
 
