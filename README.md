@@ -17,6 +17,8 @@ The provided Python script must be deployed into your AWS Lambda service. We wil
 
 Select the `s3-get-object-python` blue print. It has been designed to listen S3 created document and trigger actions.
 
+![https://files.readme.io/936fc41-Screen_Shot_2016-09-08_at_17.46.11.png]
+
 Let's configure it now.
 
 ## 2. Configure the Lambda function
@@ -29,7 +31,7 @@ Let's configure it now.
 
 ## 3. Provide the code
 
-Copy-paste the content of the `lambda_handler.py` file in the Python editor of the AWS Lambda interface.
+Copy-paste the content of the `lambda_function.py` file in the Python editor of the AWS Lambda interface.
 
 ### Parameters
 
