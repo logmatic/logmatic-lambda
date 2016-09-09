@@ -1,4 +1,6 @@
 # logmatic-lambda
+*Link to the Logmatic.io documentation: http://doc.logmatic.io/docs/python*
+
 AWS lambda function to ship ELB, S3, CloudTrail, VPC and CloudFront logs to Logmatic.io
 
 # Features
@@ -16,8 +18,6 @@ The provided Python script must be deployed into your AWS Lambda service. We wil
 ## 1. Create a new Lambda function
 
 Select the `s3-get-object-python` blue print. It has been designed to listen S3 created document and trigger actions.
-
-![https://files.readme.io/936fc41-Screen_Shot_2016-09-08_at_17.46.11.png]
 
 Let's configure it now.
 
