@@ -1,7 +1,7 @@
 # logmatic-lambda
-*Link to the Logmatic.io documentation: http://doc.logmatic.io/docs/aws-lamda-s3*
+*Link to the Logmatic.io documentation: http://doc.logmatic.io/docs/aws-lambda-s3*
 
-AWS lambda function to ship ELB, S3, CloudTrail, VPC and CloudFront logs to Logmatic.io
+AWS lambda function to ship ELB, S3, CloudTrail, VPC, CloudFront and CloudWatch logs to Logmatic.io
 
 # Features
 
