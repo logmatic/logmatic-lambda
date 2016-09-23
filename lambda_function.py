@@ -17,8 +17,7 @@ port = 10514
 #SSL security
 #SSL security can be enabled if the certificate is zipped along with this piece of code
 #while creating the lambda function
-enable_security = False
-ssl_cert = "logmaticapi.crt"
+enable_security = True
 ssl_port = 10515
 
 def lambda_handler(event, context):
@@ -29,8 +28,9 @@ def lambda_handler(event, context):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     if enable_security:
-        s = ssl.wrap_socket(s, ca_certs=ssl_cert, cert_reqs=ssl.CERT_REQUIRED)
-
+        s = ssl.wrap_socket(s)
+        port = ssl_port
+        
     s.connect((host, port))
 
     s3 = boto3.client('s3')
