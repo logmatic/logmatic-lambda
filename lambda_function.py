@@ -5,6 +5,7 @@ import urllib
 import boto3
 import socket
 import ssl
+import re
 
 #Parameters
 logmaticKey = "<your_api_key>"
@@ -49,14 +50,21 @@ def lambda_handler(event, context):
         if key[-3:] == '.gz':
             data = zlib.decompress(data, 16+zlib.MAX_WBITS)
 
-        #The data collected should contain multiple lines
-        lines = data.splitlines()
+        if is_cloudtrail(str(key)) is True:
+            cloud_trail = json.loads(data)
+            for event in cloud_trail['Records']:
+                #Create structured object and send it
+                structered_line = merge_dicts(event,{"aws": {"s3": {"bucket": bucket, "key": key}}})
+                send_entry(s,structered_line)
+        else:
+            #The data collected should contain multiple lines
+            lines = data.splitlines()
 
-        #Send lines to Logmatic.io
-        for line in lines:
-            #Create structured object and send it
-            structered_line = {"aws": {"s3": {"bucket": bucket, "key": key}},"message": line}
-            send_entry(s,structered_line)
+            #Send lines to Logmatic.io
+            for line in lines:
+                #Create structured object and send it
+                structered_line = {"aws": {"s3": {"bucket": bucket, "key": key}},"message": line}
+                send_entry(s,structered_line)
 
     except Exception as e:
         print(e)
@@ -95,3 +103,8 @@ def merge_dicts(a, b, path=None):
         else:
             a[key] = b[key]
     return a
+
+def is_cloudtrail(key):
+    regex = re.compile('\d+_CloudTrail_\w{2}-\w{4,9}-[12]_\d{8}T\d{4}Z.+.json.gz$', re.I)
+    match = regex.search(key)
+    return bool(match)
