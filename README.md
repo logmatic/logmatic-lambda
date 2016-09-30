@@ -1,7 +1,7 @@
 # logmatic-lambda
-*Link to the Logmatic.io documentation: http://doc.logmatic.io/docs/aws-lamda-s3*
+*Link to the Logmatic.io documentation: http://doc.logmatic.io/docs/aws-lambda-s3*
 
-AWS lambda function to ship ELB, S3, CloudTrail, VPC and CloudFront logs to Logmatic.io
+AWS lambda function to ship ELB, S3, CloudTrail, VPC, CloudFront and CloudWatch logs to Logmatic.io
 
 # Features
 
@@ -23,15 +23,15 @@ Let's configure it now.
 
 ## 2. Configure the Lambda function
 
-- Give the function name you want
-- Set the Python 2.7 runtime
 - Select S3 event source and:
   - The bucket where your logs are located and prefix if it applies
   - The event type: `Object Created (All)`
 
 ## 3. Provide the code
 
-Copy-paste the content of the `lambda_function.py` file in the Python editor of the AWS Lambda interface.
+- Give the function name you want
+- Set the Python 2.7 runtime and:
+  -  Copy-paste the [content](https://github.com/logmatic/logmatic-lambda/blob/master/lambda_function.py) of the `lambda_function.py` file in the Python editor of the AWS Lambda interface.
 
 ### Parameters
 
@@ -62,33 +62,18 @@ The role must be created into the IAM Management Console as follow:
 
 Then attach it to your Lambda function.
 
-## 5. Set memory
+## 5. Set memory and timeout
 
 Set the memory to the highest possible value.
+Set also the timeout limit. Logmatic.io recommends the highest possible value to deal with big files.
+
+
 
 ## 6. Testing it
 
 You are all set!
 
 The test should be quite natural if the pointed bucket(s) are filling up. There may be some latency between the time a S3 log file is posted and the Lambda function wakes up.
-
-# Enabling security
-
-To enable security follow the same instructions with the following differences:
-
-## 1. Enable security & provide parameters
-
-Before sending the file you must change the `enable_security` parameter to `True`.
-
-Don't forget to change parameters as explain above before next step.
-
-## 2. Provide the certificate
-
-To upload the code you need to ZIP it together with the `logmaticapi.crt` file in this project.
-
-## 3. Upload as .ZIP file
-
-During Lambda creation, instead of using `Edit code inline` use `Upload as .ZIP file` instead.
 
 # Suggestions
 
