@@ -6,6 +6,7 @@ import boto3
 import socket
 import ssl
 import re
+import zlib
 
 #Parameters
 logmaticKey = "<your_api_key>"
@@ -31,7 +32,7 @@ def lambda_handler(event, context):
     if enable_security:
         s = ssl.wrap_socket(s)
         port = ssl_port
-        
+
     s.connect((host, port))
 
     s3 = boto3.client('s3')
@@ -44,7 +45,7 @@ def lambda_handler(event, context):
         # Extract the S3 object
         response = s3.get_object(Bucket=bucket, Key=key)
         body = response['Body']
-        data = body.read().decode("utf-8")
+        data = body.read()
 
         # If the name has a .gz extension, then decompress the data
         if key[-3:] == '.gz':
