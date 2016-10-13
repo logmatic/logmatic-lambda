@@ -10,8 +10,7 @@ import re
 import zlib
 
 # Parameters
-#logmaticKey = "<your_api_key>"
-logmaticKey = "PpxV3zcuR4eV9kLgcvetuw"
+logmaticKey = "<your_api_key>"
 metadata = {
     "your_metafields": {
         "backend": "python"
