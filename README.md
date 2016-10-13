@@ -23,9 +23,17 @@ Let's configure it now.
 
 ## 2. Configure the Lambda function
 
+### Send logs from S3
+
 - Select S3 event source and:
   - The bucket where your logs are located and prefix if it applies
   - The event type: `Object Created (All)`
+
+### Send logs from CloudWatch
+
+- Select "CloudWatch Logs" event source and:
+  - Select the LogGroup
+  - Set a name
 
 ## 3. Provide the code
 
@@ -40,7 +48,7 @@ At the top of the script you'll find a section called `#Parameters`, that's wher
 ```
 #Parameters
 logmaticKey = "<your_api_key>"
-metadata = {"aws":{"type": "s3_logs"}}
+metadata = {"context":{"foo": "bar"}}
 ```
 
 - **API key**:

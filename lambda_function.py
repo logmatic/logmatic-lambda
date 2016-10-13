@@ -10,16 +10,20 @@ import re
 import zlib
 
 # Parameters
-logmaticKey = "<your_api_key>"
-
-metadata = {"aws": {}}
+#logmaticKey = "<your_api_key>"
+logmaticKey = "PpxV3zcuR4eV9kLgcvetuw"
+metadata = {
+    "your_metafields": {
+        "backend": "python"
+    },
+    "some_field": "change_me"
+}
 
 # Constants
 host = "api.logmatic.io"
 raw_port = 10514
 
 # SSL security
-# SSL security can be enabled if the certificate is zipped along with this piece of code
 # while creating the lambda function
 enable_security = True
 ssl_port = 10515
@@ -41,16 +45,26 @@ def lambda_handler(event, context):
 
     s.connect((host, port))
 
+    # Add the context to meta
+    metadata["aws"] = {}
+    metadata["aws"]["function_name"] = context.function_name
+    metadata["aws"]["function_version"] = context.function_version
+    metadata["aws"]["invoked_function_arn"] = context.invoked_function_arn
+    metadata["aws"]["memory_limit_in_mb"] = context.memory_limit_in_mb
+
     try:
 
         # Route to the corresponding parser
         event_type = parse_event_type(event)
+
         if event_type == "s3":
-            s3_handler(s, event)
+            logs = s3_handler(s, event)
 
         elif event_type == "awslogs":
-            awslogs_handler(s, event)
+            logs = awslogs_handler(s, event)
 
+        for log in logs:
+            send_entry(s, log)
 
     except Exception as e:
         # Logs through the socket the error
@@ -61,16 +75,20 @@ def lambda_handler(event, context):
         s.close()
 
 
+# Utility functions
+
 def parse_event_type(event):
     if "Records" in event and len(event["Records"]) > 0:
         if "s3" in event["Records"][0]:
             return "s3"
+
     elif "awslogs" in event:
         return "awslogs"
 
     raise Exception("Event type not supported (see #Event supported section)")
 
 
+# Handle S3 events
 def s3_handler(s, event):
     s3 = boto3.client('s3')
 
@@ -83,6 +101,8 @@ def s3_handler(s, event):
     body = response['Body']
     data = body.read()
 
+    structured_logs = []
+
     # If the name has a .gz extension, then decompress the data
     if key[-3:] == '.gz':
         data = zlib.decompress(data, 16 + zlib.MAX_WBITS)
@@ -92,22 +112,25 @@ def s3_handler(s, event):
         for event in cloud_trail['Records']:
             # Create structured object and send it
             structured_line = merge_dicts(event, {"aws": {"s3": {"bucket": bucket, "key": key}}})
-            send_entry(s, structured_line)
+            structured_logs.append(structured_line)
     else:
-        # The data collected should contain multiple lines
-        lines = data.splitlines()
-
         # Send lines to Logmatic.io
-        for line in lines:
+        for line in data.splitlines():
             # Create structured object and send it
             structured_line = {"aws": {"s3": {"bucket": bucket, "key": key}}, "message": line}
             send_entry(s, structured_line)
+            structured_logs.append(structured_line)
+
+    return structured_logs
 
 
+# Handle CloudWatch events and logs
 def awslogs_handler(s, event):
-
     # Get logs
-    logs = data_as_json(event)
+    data = zlib.decompress(base64.b64decode(event["awslogs"]["data"]), 16 + zlib.MAX_WBITS)
+    logs = json.loads(str(data))
+
+    structured_logs = []
 
     # Send lines to Logmatic.io
     for log in logs["logEvents"]:
@@ -121,7 +144,9 @@ def awslogs_handler(s, event):
                 }
             }
         })
-        send_entry(s, structured_line)
+        structured_logs.append(structured_line)
+
+    return structured_logs
 
 
 def send_entry(s, log_entry):
@@ -160,10 +185,3 @@ def is_cloudtrail(key):
     regex = re.compile('\d+_CloudTrail_\w{2}-\w{4,9}-[12]_\d{8}T\d{4}Z.+.json.gz$', re.I)
     match = regex.search(key)
     return bool(match)
-
-
-def data_as_json(event):
-    data = zlib.decompress(base64.b64decode(event["awslogs"]["data"]), 16 + zlib.MAX_WBITS)
-    json_logs = json.loads(str(data))
-
-    return json_logs
