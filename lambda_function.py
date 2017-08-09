@@ -109,15 +109,14 @@ def s3_handler(s, event):
     if is_cloudtrail(str(key)) is True:
         cloud_trail = json.loads(data)
         for event in cloud_trail['Records']:
-            # Create structured object and send it
+            # Create structured object
             structured_line = merge_dicts(event, {"aws": {"s3": {"bucket": bucket, "key": key}}})
             structured_logs.append(structured_line)
     else:
         # Send lines to Logmatic.io
         for line in data.splitlines():
-            # Create structured object and send it
+            # Create structured object
             structured_line = {"aws": {"s3": {"bucket": bucket, "key": key}}, "message": line}
-            send_entry(s, structured_line)
             structured_logs.append(structured_line)
 
     return structured_logs
